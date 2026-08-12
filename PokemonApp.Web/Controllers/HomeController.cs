@@ -18,11 +18,10 @@ namespace PokemonApp.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var result = await _pokemonService.GetPokemonsAsync(10, 0);
+            var response = await _pokemonService.GetPokemonsAsync(20, 0);
 
-            System.Diagnostics.Debug.WriteLine($"Total de pokemones obtenidos: {result.Count}");
 
-            return View();
+            return View(response.Results);
         }
 
         public IActionResult Privacy()

@@ -1,8 +1,37 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<PokemonApp.Web.Models.PokemonDto>
+
+@{
+    ViewData["Title"] = "Pokédex Grid";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-4">
+    <h1 class="display-4 text-danger font-weight-bold">Pokédex .NET 8</h1>
+    <p class="text-muted">Explora los Pokémon obtenidos mediante el consumo de la PokeAPI.</p>
+</div>
+
+<div class="container">
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var pokemon in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-lg text-center p-3" style="background-color: #f8f9fa;">
+                        <div class="badge bg-secondary position-absolute top-0 end-0 m-2">#@pokemon.Id</div>
+                        <img src="@pokemon.ImageUrl" class="card-img-top mx-auto mt-2" alt="@pokemon.Name" style="width: 120px; height: 120px; object-fit: contain;" />
+                        <div class="card-body">
+                            <h5 class="card-title text-capitalize font-weight-bold">@pokemon.Name</h5>
+                            <a href="https://www.pokemon.com/es/pokedex/@pokemon.Name" target="_blank" class="btn btn-outline-danger btn-sm mt-2">Ver detalles</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p class="text-danger">No se pudieron cargar los Pokémon en este momento.</p>
+            </div>
+        }
+    </div>
 </div>
