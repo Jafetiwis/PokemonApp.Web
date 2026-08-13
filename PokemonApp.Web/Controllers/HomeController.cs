@@ -29,20 +29,33 @@ namespace PokemonApp.Web.Controllers
 
             List<PokemonDto> pokemones = new List<PokemonDto>();
 
-            if (!string.IsNullOrEmpty(nombre))
+            // 1. Filtrar por Tipo si fue seleccionado
+            if (!string.IsNullOrEmpty(tipo))
             {
-                var response = await _pokemonService.GetPokemonsAsync(1500, 0);
-                pokemones = response.Results;
+                pokemones = await _pokemonService.GetPokemonsByTypeAsync(tipo);
 
-                pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+                // Si además escribieron un nombre, filtramos también por nombre sobre los de ese tipo
+                if (!string.IsNullOrEmpty(nombre))
+                {
+                    pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+                }
 
+                // Aplicamos la paginación manual sobre el resultado filtrado
                 pokemones = pokemones.Skip(offset).Take(20).ToList();
             }
+            // 2. Filtrar solo por Nombre si no hay tipo seleccionado
+            else if (!string.IsNullOrEmpty(nombre))
+            {
+                var response = await _pokemonService.GetPokemonsAsync(1500, 0);
+                pokemones = response.Results.Where(p => p.Name.Contains(nombre.ToLower())).Skip(offset).Take(20).ToList();
+            }
+            // 3. Vista general por defecto
             else
             {
                 var response = await _pokemonService.GetPokemonsAsync(20, offset);
                 pokemones = response.Results;
             }
+
             return View(pokemones);
         }
 
@@ -50,7 +63,19 @@ namespace PokemonApp.Web.Controllers
         {
             List<PokemonDto> pokemones = new List<PokemonDto>();
 
-            if (!string.IsNullOrEmpty(nombre))
+            // 1. Filtrar por Tipo si fue seleccionado
+            if (!string.IsNullOrEmpty(tipo))
+            {
+                pokemones = await _pokemonService.GetPokemonsByTypeAsync(tipo);
+
+                if (!string.IsNullOrEmpty(nombre))
+                {
+                    pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+                }
+
+                pokemones = pokemones.Skip(offset).Take(20).ToList();
+            }
+            else if (!string.IsNullOrEmpty(nombre))
             {
                 var response = await _pokemonService.GetPokemonsAsync(1500, 0);
                 pokemones = response.Results.Where(p => p.Name.Contains(nombre.ToLower())).Skip(offset).Take(20).ToList();
@@ -68,7 +93,7 @@ namespace PokemonApp.Web.Controllers
 
                 worksheet.Cell(currentRow, 1).Value = "Número (ID)";
                 worksheet.Cell(currentRow, 2).Value = "Nombre del Pokémon";
-                worksheet.Cell(currentRow, 1).Value = "Enlace de Imagen";
+                worksheet.Cell(currentRow, 3).Value = "Enlace de Imagen";
                 worksheet.Row(1).Style.Font.Bold = true;
 
                 foreach (var pokemon in pokemones)
@@ -94,7 +119,19 @@ namespace PokemonApp.Web.Controllers
         {
             List<PokemonDto> pokemones = new List<PokemonDto>();
 
-            if (!string.IsNullOrEmpty(nombre))
+            // 1. Filtrar por Tipo si fue seleccionado
+            if (!string.IsNullOrEmpty(tipo))
+            {
+                pokemones = await _pokemonService.GetPokemonsByTypeAsync(tipo);
+
+                if (!string.IsNullOrEmpty(nombre))
+                {
+                    pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+                }
+
+                pokemones = pokemones.Skip(offset).Take(20).ToList();
+            }
+            else if (!string.IsNullOrEmpty(nombre))
             {
                 var response = await _pokemonService.GetPokemonsAsync(1500, 0);
                 pokemones = response.Results.Where(p => p.Name.Contains(nombre.ToLower())).Skip(offset).Take(20).ToList();
@@ -105,7 +142,6 @@ namespace PokemonApp.Web.Controllers
                 pokemones = response.Results;
             }
 
-            // Armamos el diseño del correo en HTML
             string htmlBody = "<h2>Tu listado de Pokémon</h2><table border='1' cellpadding='8' style='border-collapse: collapse;'>";
             htmlBody += "<tr style='background-color: #f2f2f2;'><th>ID</th><th>Nombre</th><th>Imagen</th></tr>";
 
@@ -118,19 +154,18 @@ namespace PokemonApp.Web.Controllers
 
             try
             {
-                // En una app real, el destino se pediría en pantalla. Aquí usamos uno de prueba para el evaluador.
-                await _emailService.EnviarCorreoAsync("correoevaluador@gmail.com", "Listado Pokédex .NET", htmlBody);
-
-                // Mensaje de éxito temporal
-                TempData["Mensaje"] = "Intento de envío de correo realizado. (Nota: Para enviarlo de verdad, ingresa credenciales reales en appsettings.json)";
+                // Agregar correo para recibir el listado
+                await _emailService.EnviarCorreoAsync("nombrereclutador@gmail.com", "Listado Pokédex .NET", htmlBody);
+                TempData["Mensaje"] = "correo realizado con éxito.";
             }
             catch (Exception ex)
             {
-                // Mensaje de error si fallan las credenciales
-                TempData["Error"] = $"Error de autenticación SMTP. El evaluador debe configurar sus credenciales. Detalle: {ex.Message}";
+                // Protege el servidor local de bloqueos por excepciones de red externas
+                TempData["Error"] = $"Aviso del sistema SMTP: No se pudo completar el envío. Detalle: {ex.Message}";
             }
 
-            return RedirectToAction("Index", new { nombre, tipo, offset });
+            // Forzamos una respuesta HTTP limpia de redirección
+            return LocalRedirect($"/Home/Index?nombre={nombre}&tipo={tipo}&offset={offset}");
         }
 
         public IActionResult Privacy()
