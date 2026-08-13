@@ -22,6 +22,27 @@ namespace PokemonApp.Web.Services
             return JsonSerializer.Deserialize<PokemonListResponse>(jsonString, options) ?? new PokemonListResponse();
             
         }
+
+        //Método para obtener los tipos de Pokémon desde la Api, para el dropdown
+        public async Task<List<string>> GetPokemonTypesAsync()
+        {
+            var response = await _httpClient.GetAsync("https://pokeapi.co/api/v2/type\"");
+            if (!response.IsSuccessStatusCode) return new List<string>();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(jsonString);
+            var types = new List<string>();
+
+            foreach (var element in doc.RootElement.GetProperty("results").EnumerateArray())
+            {
+                var typeName = element.GetProperty("name").GetString();
+                if (!string.IsNullOrEmpty(typeName))
+                {
+                    types.Add(typeName);
+                }    
+            }
+            return types;
+        }
     }
 
 }

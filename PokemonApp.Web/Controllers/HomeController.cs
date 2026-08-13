@@ -16,12 +16,19 @@ namespace PokemonApp.Web.Controllers
             _pokemonService = pokemonService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? nombre)
         {
+            ViewBag.Tipos = await _pokemonService.GetPokemonTypesAsync();
+
             var response = await _pokemonService.GetPokemonsAsync(20, 0);
+            var pokemones = response.Results;
 
+            if (!string.IsNullOrEmpty(nombre))
+            {
+                pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+            }    
 
-            return View(response.Results);
+            return View(pokemones);
         }
 
         public IActionResult Privacy()
