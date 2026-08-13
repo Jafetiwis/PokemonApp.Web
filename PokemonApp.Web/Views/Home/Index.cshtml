@@ -2,11 +2,32 @@
 
 @{
     ViewData["Title"] = "Pokédex Grid";
+    var tipos = ViewBag.Tipos as List<string> ?? new List<string>();
 }
 
 <div class="text-center mb-4">
     <h1 class="display-4 text-danger font-weight-bold">Pokédex .NET 8</h1>
     <p class="text-muted">Explora los Pokémon obtenidos mediante el consumo de la PokeAPI.</p>
+</div>
+
+<div class="container mb-4">
+    <form method="get" asp-action="Index" class="row g-3 justify-content-center">
+        <div class="col-md-4">
+            <input type="text" name="nombre" class="form-control" placeholder="Buscar por nombre..." value="@Context.Request.Query["nombre"]" />
+        </div>
+        <div class="col-md-3">
+            <select name="tipo" class="form-select">
+                <option value="">-- Todos los tipos --</option>
+                @foreach (var t in tipos)
+                {
+                    <option value="@t" selected="@(Context.Request.Query["tipo"] == t)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-danger w-100">Filtrar</button>
+        </div>
+    </form>
 </div>
 
 <div class="container">
