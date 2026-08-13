@@ -16,18 +16,30 @@ namespace PokemonApp.Web.Controllers
             _pokemonService = pokemonService;
         }
 
-        public async Task<IActionResult> Index(string? nombre)
+        public async Task<IActionResult> Index(string? nombre, string? tipo, int offset = 0)
         {
             ViewBag.Tipos = await _pokemonService.GetPokemonTypesAsync();
 
-            var response = await _pokemonService.GetPokemonsAsync(20, 0);
-            var pokemones = response.Results;
+            ViewBag.Offset = offset;
+            ViewBag.Nombre = nombre;
+            ViewBag.Tipo = tipo;
+
+            List<PokemonDto> pokemones = new List<PokemonDto>();
 
             if (!string.IsNullOrEmpty(nombre))
             {
-                pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
-            }    
+                var response = await _pokemonService.GetPokemonsAsync(1500, 0);
+                pokemones = response.Results;
 
+                pokemones = pokemones.Where(p => p.Name.Contains(nombre.ToLower())).ToList();
+
+                pokemones = pokemones.Skip(offset).Take(20).ToList();
+            }
+            else
+            {
+                var response = await _pokemonService.GetPokemonsAsync(20, offset);
+                pokemones = response.Results;
+            }
             return View(pokemones);
         }
 

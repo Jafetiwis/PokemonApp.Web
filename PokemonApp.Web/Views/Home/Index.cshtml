@@ -56,3 +56,24 @@
         }
     </div>
 </div>
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        @if (ViewBag.Offset > 0)
+        {
+            <a href="?nombre=@ViewBag.Nombre&tipo=@ViewBag.Tipo&offset=@(ViewBag.Offset - 20)" class="btn btn-outline-danger fw-bold px-4">
+                &laquo; Anterior
+            </a>
+        }
+        else
+        {
+            <button class="btn btn-outline-secondary fw-bold px-4" disabled>&laquo; Anterior</button>
+        }
+
+        <span class="text-muted fw-bold">Paginación Manual</span>
+
+        <a href="?nombre=@ViewBag.Nombre&tipo=@ViewBag.Tipo&offset=@(ViewBag.Offset + 20)" class="btn btn-danger fw-bold px-4">
+            Siguiente &raquo;
+        </a>
+    </div>
+</div>
