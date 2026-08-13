@@ -27,6 +27,12 @@
         <div class="col-md-2">
             <button type="submit" class="btn btn-danger w-100">Filtrar</button>
         </div>
+
+        <div class="col-md-2">
+            <a href="@Url.Action("ExportarExcel", "Home", new { nombre = Context.Request.Query["nombre"], tipo = Context.Request.Query["tipo"], offset = ViewBag.Offset })" class="btn btn-success w-100 fw-bold">
+                📄 Exportar Excel
+            </a>
+        </div>
     </form>
 </div>
 
